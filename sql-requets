@@ -23,11 +23,70 @@ WHERE year(film.date) = 2023
 
 #d. Nombre de films par genre (classés dans l’ordre décroissant)
 
-SELECT  COUNT(f.id_film)  nbFilms , g.type 
-FROM film f
-INNER JOIN genre_det d ON f.id_film = d.id_film
+SELECT  COUNT(d.id_film)  nbFilms , g.type 
+FROM genre_det d 
 INNER JOIN genre g ON d.id_genre = g.id_genre
 GROUP BY g.type
-
 ORDER BY nbFilms DESC;
 
+
+
+#e. Nombre de films par réalisateur (classés dans l’ordre décroissant)
+
+SELECT COUNT(f.id_film) AS fcount, p.nom,p.prenom FROM film f
+INNER JOIN realisateur r ON f.id_realisateur = r.id_realisateur
+INNER JOIN personne p ON r.id_personne = p.id_personne
+GROUP BY f.id_film , p.nom,p.prenom
+ORDER BY fcount desc
+
+#f. Casting d’un film en particulier (id_film) : nom, prénom des acteurs + sexe
+
+SELECT p.nom, p.prenom, p.sexe
+FROM casting c
+INNER JOIN acteur a ON c.id_acteur = a.id_acteur
+INNER JOIN personne p ON a.id_personne = p.id_personne
+WHERE c.id_film = '1';
+
+#g. Films tournés par un acteur en particulier (id_acteur) avec leur rôle et l’année de sortie (du 
+#film le plus récent au plus ancien
+
+SELECT f.titre , p.nom,p.prenom ,r.nom, year(f.date) year
+FROM film f
+INNER JOIN casting c ON f.id_film = c.id_film
+INNER JOIN acteur a ON c.id_acteur = a.id_acteur
+INNER JOIN personne p ON a.id_personne = p.id_personne
+INNER JOIN role r ON c.id_role = c.id_role
+WHERE c.id_acteur = '1'
+ORDER BY YEAR desc
+
+#h. Listes des personnes qui sont à la fois acteurs et réalisateurs
+SELECT p.nom,p.prenom
+FROM personne p 
+INNER JOIN acteur a ON p.id_personne = a.id_personne
+INNER JOIN realisateur r ON p.id_personne = r.id_personne
+
+#i. Liste des films qui ont moins de 5 ans (classés du plus récent au plus ancien)
+
+SELECT f.titre
+FROM film f
+WHERE YEAR(CURDATE()) - YEAR(f.date) <= 5;
+
+#j. Nombre d’hommes et de femmes parmi les acteurs
+SELECT p.sexe ,COUNT(p.id_personne)
+FROM acteur a
+INNER JOIN personne p ON a.id_personne = p.id_personne
+GROUP BY p.sexe;
+
+#k. Liste des acteurs ayant plus de 50 ans (âge révolu et non révolu)
+
+SELECT p.nom,p.prenom FROM acteur a
+INNER JOIN personne p on a.id_personne = p.id_personne
+where YEAR(CURDATE()) - year(p.date_de_naissance) > 50;
+
+#l. Acteurs ayant joué dans 3 films ou plus
+SELECT p.nom, p.prenom,COUNT(c.id_film) nbrfilm
+FROM casting c
+INNER JOIN acteur a ON c.id_acteur = a.id_acteur
+INNER JOIN personne p ON a.id_personne = p.id_personne
+GROUP BY p.nom, p.prenom
+HAVING nbrfilm >= 3;
