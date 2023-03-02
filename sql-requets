@@ -26,25 +26,28 @@ WHERE year(film.date) = 2023
 SELECT  COUNT(d.id_film)  nbFilms , g.type 
 FROM genre_det d 
 INNER JOIN genre g ON d.id_genre = g.id_genre
-GROUP BY g.type
+GROUP BY g.id_genre
 ORDER BY nbFilms DESC;
 
 
 
 #e. Nombre de films par réalisateur (classés dans l’ordre décroissant)
 
-SELECT COUNT(f.id_film) AS fcount, p.nom,p.prenom FROM film f
+SELECT concat(p.nom,' ',p.prenom) AS realisateur ,COUNT(f.id_realisateur) AS fcount FROM film f
 INNER JOIN realisateur r ON f.id_realisateur = r.id_realisateur
 INNER JOIN personne p ON r.id_personne = p.id_personne
-GROUP BY f.id_film , p.nom,p.prenom
-ORDER BY fcount desc
+GROUP BY r.id_realisateur
+ORDER BY fcount DESC
+
+
 
 #f. Casting d’un film en particulier (id_film) : nom, prénom des acteurs + sexe
 
-SELECT concat(p.nom,' ', p.prenom), p.sexe
+SELECT concat(p.nom,' ', p.prenom), p.sexe,r.nom
 FROM casting c
 INNER JOIN acteur a ON c.id_acteur = a.id_acteur
 INNER JOIN personne p ON a.id_personne = p.id_personne
+INNER JOIN role r ON c.id_role = p.id_personne
 WHERE c.id_film = '1';
 
 #g. Films tournés par un acteur en particulier (id_acteur) avec leur rôle et l’année de sortie (du 
@@ -89,5 +92,5 @@ SELECT p.nom, p.prenom,COUNT(c.id_film) nbrfilm
 FROM casting c
 INNER JOIN acteur a ON c.id_acteur = a.id_acteur
 INNER JOIN personne p ON a.id_personne = p.id_personne
-GROUP BY p.nom, p.prenom
-HAVING nbrfilm >= 3;
+GROUP BY a.id_acteur
+HAVING nbrfilm >= 1;
